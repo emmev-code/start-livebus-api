@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capienza Autobus</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    #test1 {
+      margin-top: 20px;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #ddd;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      margin: 10px 0;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    .filter-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .filter-container input {
+      width: 22%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Capienza Autobus in Tempo Reale</h1>
+  
+  <!-- Contenitore per i filtri per ogni colonna -->
+  <div class="filter-container">
+    <input type="text" id="filterZona" placeholder="Filtra per zona" />
+    <input type="text" id="filterLinea" placeholder="Filtra per linea" />
+    <input type="text" id="filterVeicolo" placeholder="Filtra per veicolo" />
+    <input type="text" id="filterCodiceFermata" placeholder="Filtra per codice fermata" />
+  </div>
+
+  <div id="test1">Caricamento in corso...</div>
+
+  <script>
+    // Funzione per applicare il filtro su ogni colonna
+    function applyFilter() {
+      const filterZona = document.getElementById('filterZona').value.toLowerCase();
+      const filterLinea = document.getElementById('filterLinea').value.toLowerCase();
+      const filterVeicolo = document.getElementById('filterVeicolo').value.toLowerCase();
+      const filterCodiceFermata = document.getElementById('filterCodiceFermata').value.toLowerCase();
+      
+      const table = document.querySelector('table');
+      const rows = table.querySelectorAll('tr');
+
+      rows.forEach((row, index) => {
+        // Non applicare il filtro sulla prima riga (intestazione)
+        if (index === 0) return;
+
+        const cells = row.getElementsByTagName('td');
+        let match = true;
+
+        // Verifica ogni cella rispetto al filtro per la colonna
+        if (cells[0] && !cells[0].textContent.toLowerCase().includes(filterZona)) match = false;
+        if (cells[1] && !cells[1].textContent.toLowerCase().includes(filterLinea)) match = false;
+        if (cells[2] && !cells[2].textContent.toLowerCase().includes(filterVeicolo)) match = false;
+        if (cells[3] && !cells[3].textContent.toLowerCase().includes(filterCodiceFermata)) match = false;
+
+        // Mostra o nascondi la riga in base al filtro
+        row.style.display = match ? '' : 'none';
+      });
+    }
+
+    // Fetch dei dati e creazione della tabella
+    fetch('/api/autobus')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('test1');
+        container.innerHTML = ''; // Svuota il div prima di aggiungere la tabella
+
+        // Crea la tabella
+        const table = document.createElement('table');
+
+        // Aggiungi l'intestazione della tabella
+        const header = table.createTHead();
+        const headerRow = header.insertRow();
+        headerRow.insertCell().textContent = 'Zona';
+        headerRow.insertCell().textContent = 'Linea';
+        headerRow.insertCell().textContent = 'Veicolo';
+        headerRow.insertCell().textContent = 'Codice Fermata';
+
+        // Aggiungi i dati alla tabella
+        const tbody = table.createTBody();
+        data.forEach(row => {
+          const rowElement = tbody.insertRow();
+          row.forEach(cellData => {
+            const cell = rowElement.insertCell();
+            cell.textContent = cellData;
+          });
+        });
+
+        // Aggiungi la tabella alla pagina
+        container.appendChild(table);
+
+        // Applica il filtro ogni volta che l'utente digita
+        document.getElementById('filterZona').addEventListener('input', applyFilter);
+        document.getElementById('filterLinea').addEventListener('input', applyFilter);
+        document.getElementById('filterVeicolo').addEventListener('input', applyFilter);
+        document.getElementById('filterCodiceFermata').addEventListener('input', applyFilter);
+      })
+      .catch(err => {
+        console.error("Errore nel caricamento dati:", err);
+        document.getElementById('test1').textContent = "Errore nel caricamento dei dati.";
+      });
+  </script>
+</body>
+</html>
