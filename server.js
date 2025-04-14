@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Route API che estrae i dati da GridView1
-app.get('/api/autobus', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
         const response = await axios.get('https://infobus.startromagna.it/CapienzaAutobusTempoReale/');
         const $ = cheerio.load(response.data);
@@ -33,11 +33,6 @@ app.get('/api/autobus', async (req, res) => {
         console.error(error);
         res.status(500).send('Errore nel recupero dei dati');
     }
-});
-
-// Route per index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, () => {
