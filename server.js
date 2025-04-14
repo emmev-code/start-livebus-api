@@ -10,9 +10,6 @@ const port = 3001;
 // Permette richieste da qualsiasi origine
 app.use(cors());
 
-// Serve i file statici nella cartella "public"
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Route API che estrae i dati da GridView1
 app.get('/', async (req, res) => {
     try {
